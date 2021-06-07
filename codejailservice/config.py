@@ -11,7 +11,7 @@ class BaseConfig:
         'user': 'sandbox',
 
         # Configurable limits.
-        # Setting all of them to 0 to disable limits in conatiners.
+        # Setting all of them to 0 to disable limits in containers.
         'limits': {
             #
             'NPROC': 0,

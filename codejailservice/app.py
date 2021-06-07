@@ -1,13 +1,34 @@
 import os
 import json
 import logging
+import sys
 
 from codejail import jail_code
 
 from copy import deepcopy
 from flask import Flask, Response, jsonify, request
+from logging.config import dictConfig
 
-LOG = logging.getLogger(__name__)
+
+dictConfig({
+    'version': 1,
+    'formatters': {
+        'default': {
+            'format': '%(asctime)s %(levelname)s %(process)d ' '[%(name)s] %(filename)s:%(lineno)d - %(message)s',
+        }
+    },
+    'handlers': {
+        'console': {
+            'class': 'logging.StreamHandler',
+            'stream': sys.stdout,
+            'formatter': 'default'
+        }
+    },
+    'root': {
+        'level': 'DEBUG',
+        'handlers': ['console']
+    }
+})
 
 app = Flask(__name__)
 env_config = os.getenv("FLASK_APP_SETTINGS", "codejailservice.config.ProductionConfig")
@@ -42,13 +63,13 @@ from codejail.safe_exec import safe_exec as codejail_safe_exec
 
 @app.route("/")
 def index():
-    return Response("Hello, world!", status=200)
+    return Response("Edx Codejail Service", status=200)
 
 @app.route("/health")
 def health():
     return Response("OK", status=200)
 
-@app.route("/api/v0/code-exec", methods=['POST'])
+@app.post("/api/v0/code-exec")
 def code_exec():
     payload = json.loads(request.form["payload"])
     globals_dict = deepcopy(payload["globals_dict"])
@@ -61,8 +82,11 @@ def code_exec():
 
     try:
         python_path=payload["python_path"]
-        extra_files=[(python_path[0], request.files[python_path[0]].read())]
-
+        if python_path:
+            extra_files=[(python_path[0], request.files[python_path[0]].read())]
+        else:
+            extra_files=[]
+        app.logger.info("Running jailed code ...")
         exec_fn(
             payload["code"],
             globals_dict,
@@ -74,9 +98,11 @@ def code_exec():
 
     except SafeExecException as e:
         # Saving SafeExecException e in exception to be used later.
+        app.logger.error("Error found while executing jailed code.")
         exception = e
         emsg = text_type(e)
     else:
+        app.logger.info("Jailed code was executed.")
         exception = None
         emsg = None
 
@@ -84,4 +110,5 @@ def code_exec():
         "globals_dict": globals_dict,
         "emsg": emsg
     }
+
     return jsonify(response)
