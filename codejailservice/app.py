@@ -2,6 +2,7 @@ import os
 import json
 import logging
 import sys
+import timeit
 
 from codejail import jail_code
 
@@ -86,23 +87,27 @@ def code_exec():
             extra_files=[(python_path[0], request.files[python_path[0]].read())]
         else:
             extra_files=[]
-        app.logger.info("Running jailed code ...")
+        course_id = payload["limit_overrides_context"]
+        problem_id = payload["slug"]
+        app.logger.info("Running problem_id:%s jailed code for course_id:%s ...", problem_id, course_id)
+        start = timeit.default_timer()
         exec_fn(
             payload["code"],
             globals_dict,
             python_path=python_path,
             extra_files=extra_files,
-            limit_overrides_context=payload["limit_overrides_context"],
-            slug=payload["slug"],
+            limit_overrides_context=course_id,
+            slug=problem_id,
         )
+        end = timeit.default_timer()
 
     except SafeExecException as e:
         # Saving SafeExecException e in exception to be used later.
         app.logger.error("Error found while executing jailed code.")
         exception = e
-        emsg = text_type(e)
+        emsg = str(e)
     else:
-        app.logger.info("Jailed code was executed.")
+        app.logger.info("Jailed code was executed in %s seconds.", str(end-start))
         exception = None
         emsg = None
 
