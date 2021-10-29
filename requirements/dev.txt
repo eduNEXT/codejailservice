@@ -106,7 +106,7 @@ werkzeug==2.0.2
     # via
     #   -r requirements/base.txt
     #   flask
-wrapt==1.13.2
+wrapt==1.13.3
     # via astroid
 
 # The following packages are considered to be unsafe in a requirements file:
