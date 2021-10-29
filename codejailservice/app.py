@@ -1,15 +1,18 @@
-import os
+"""Manage the app and config the codejail functionality."""
+
 import json
 import logging
+import os
 import sys
 import timeit
-
-from codejail import jail_code
-
 from copy import deepcopy
-from flask import Flask, Response, jsonify, request
 from logging.config import dictConfig
 
+from codejail import jail_code
+from codejail.safe_exec import SafeExecException
+from codejail.safe_exec import not_safe_exec as codejail_not_safe_exec
+from codejail.safe_exec import safe_exec as codejail_safe_exec
+from flask import Flask, Response, jsonify, logging, request
 
 dictConfig(
     {
@@ -32,12 +35,15 @@ dictConfig(
 )
 
 app = Flask(__name__)
-env_config = os.getenv("FLASK_APP_SETTINGS", "codejailservice.config.ProductionConfig")
+LOG = logging.create_logger(app)
+env_config = os.getenv("FLASK_APP_SETTINGS",
+                       "codejailservice.config.ProductionConfig")
 app.config.from_object(env_config)
 
 
-def configure_codejail(app):
-    code_jail_settings = app.config["CODE_JAIL"]
+def configure_codejail(application):
+    """Logic to configure Flask app according to code."""
+    code_jail_settings = application.config["CODE_JAIL"]
     python_bin = code_jail_settings.get("python_bin")
     if python_bin:
         user = code_jail_settings["user"]
@@ -60,23 +66,22 @@ def configure_codejail(app):
 
 configure_codejail(app)
 
-from codejail.safe_exec import SafeExecException, json_safe
-from codejail.safe_exec import not_safe_exec as codejail_not_safe_exec
-from codejail.safe_exec import safe_exec as codejail_safe_exec
-
 
 @app.route("/")
 def index():
+    """Index route logic."""
     return Response("Edx Codejail Service", status=200)
 
 
 @app.route("/health")
 def health():
+    """Health route logic."""
     return Response("OK", status=200)
 
 
 @app.post("/api/v0/code-exec")
 def code_exec():
+    """code-exec route logic for post."""
     payload = json.loads(request.form["payload"])
     globals_dict = deepcopy(payload["globals_dict"])
 
@@ -94,7 +99,7 @@ def code_exec():
             extra_files = []
         course_id = payload["limit_overrides_context"]
         problem_id = payload["slug"]
-        app.logger.info(
+        LOG.info(
             "Running problem_id:%s jailed code for course_id:%s ...",
             problem_id,
             course_id,
@@ -110,13 +115,12 @@ def code_exec():
         )
         end = timeit.default_timer()
 
-    except SafeExecException as e:
+    except SafeExecException as exception:
         # Saving SafeExecException e in exception to be used later.
-        app.logger.error("Error found while executing jailed code.")
-        exception = e
-        emsg = str(e)
+        LOG.error("Error found while executing jailed code.")
+        emsg = str(exception)
     else:
-        app.logger.info("Jailed code was executed in %s seconds.", str(end - start))
+        LOG.info("Jailed code was executed in %s seconds.", str(end - start))
         exception = None
         emsg = None
 

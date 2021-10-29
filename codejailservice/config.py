@@ -1,7 +1,10 @@
+"""Module with the base, development and production class configuration."""
 import os
 
 
 class BaseConfig:
+    """Class with the base case to use code_jail."""
+
     DEBUG = False
     DEVELOPMENT = False
     SECRET_KEY = os.getenv("SECRET_KEY", "this-is-the-default-key")
@@ -22,7 +25,8 @@ class BaseConfig:
             "VMEM": 0,
             # Time in seconds that the jailed process has to run.
             "REALTIME": 0,
-            # Needs to be non-zero so that jailed code can use it as their temp directory.(10MiB in bytes)
+            # Needs to be non-zero so that jailed code can use
+            # it as their temp directory.(10MiB in bytes)
             "FSIZE": 10485760,
             # Disable usage of proxy (force thread-safe)
             "PROXY": 0,
@@ -33,11 +37,17 @@ class BaseConfig:
         "limit_overrides": {},
     }
 
+    def __str__(self):
+        """Make the string representation of the class."""
+        return self.__class__.__name__
+
 
 class DevelopmentConfig(BaseConfig):
+    """Class to use for development context that inherits from BaseConfig."""
+
     DEBUG = True
     DEVELOPMENT = True
 
 
 class ProductionConfig(BaseConfig):
-    pass
+    """Class to use for production context that inherits from BaseConfig."""
