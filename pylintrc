@@ -120,6 +120,7 @@ deprecated-modules = regsub,TERMIOS,Bastion,rexec
 import-graph =
 ext-import-graph =
 int-import-graph =
+known-third-party=codejail
 
 [EXCEPTIONS]
 overgeneral-exceptions = Exception

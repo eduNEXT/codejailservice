@@ -7,13 +7,11 @@ import timeit
 from copy import deepcopy
 from logging.config import dictConfig
 
-from flask import Flask, Response, jsonify, request
-from flask.logging import create_logger
-
 from codejail import jail_code
 from codejail.safe_exec import SafeExecException
 from codejail.safe_exec import not_safe_exec as codejail_not_safe_exec
 from codejail.safe_exec import safe_exec as codejail_safe_exec
+from flask import Flask, Response, jsonify, logging, request
 
 dictConfig(
     {
@@ -36,7 +34,7 @@ dictConfig(
 )
 
 app = Flask(__name__)
-LOG = create_logger(app)
+LOG = logging.create_logger(app)
 env_config = os.getenv("FLASK_APP_SETTINGS",
                        "codejailservice.config.ProductionConfig")
 app.config.from_object(env_config)
