@@ -68,7 +68,7 @@ configure_codejail(app)
 
 @app.route("/")
 def index():
-    """Index route logic."""
+    """A welcome message to give an idea of what this service entails."""
     return Response("Edx Codejail Service", status=200)
 
 
