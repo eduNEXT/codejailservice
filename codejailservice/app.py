@@ -1,5 +1,6 @@
 """Manage the app and config the codejail functionality."""
 
+import importlib
 import json
 import os
 import sys
@@ -8,9 +9,6 @@ from copy import deepcopy
 from logging.config import dictConfig
 
 from codejail import jail_code
-from codejail.safe_exec import SafeExecException
-from codejail.safe_exec import not_safe_exec as codejail_not_safe_exec
-from codejail.safe_exec import safe_exec as codejail_safe_exec
 from flask import Flask, Response, jsonify, logging, request
 
 dictConfig(
@@ -32,12 +30,6 @@ dictConfig(
         "root": {"level": "DEBUG", "handlers": ["console"]},
     }
 )
-
-app = Flask(__name__)
-LOG = logging.create_logger(app)
-env_config = os.getenv("FLASK_APP_SETTINGS",
-                       "codejailservice.config.ProductionConfig")
-app.config.from_object(env_config)
 
 
 def configure_codejail(application):
@@ -63,8 +55,24 @@ def configure_codejail(application):
             )
 
 
+# -----------------app configuration-------------------------
+
+app = Flask(__name__)
+LOG = logging.create_logger(app)
+env_config = os.getenv("FLASK_APP_SETTINGS",
+                       "codejailservice.config.ProductionConfig")
+app.config.from_object(env_config)
+
 configure_codejail(app)
 
+# Lazy imports of codejail functions according(after) the configuration  app.
+code_jail_safe_exec = importlib.import_module('codejail.safe_exec')
+SafeExecException = code_jail_safe_exec.SafeExecException
+codejail_not_safe_exec = code_jail_safe_exec.not_safe_exec
+codejail_safe_exec = code_jail_safe_exec.safe_exec
+
+
+# -----------------app routes--------------------------------
 
 @app.route("/")
 def index():
@@ -74,13 +82,13 @@ def index():
 
 @app.route("/health")
 def health():
-    """Health route response ."""
+    """Answer health route with response."""
     return Response("OK", status=200)
 
 
 @app.post("/api/v0/code-exec")
 def code_exec():
-    """code-exec route logic for post."""
+    """Code-exec route logic for post."""
     payload = json.loads(request.form["payload"])
     globals_dict = deepcopy(payload["globals_dict"])
 
@@ -115,7 +123,7 @@ def code_exec():
         end = timeit.default_timer()
 
     except SafeExecException as exception:
-        # Saving SafeExecException e in exception to be used later.
+        # Saving SafeExecException  in exception to be used later.
         LOG.error("Error found while executing jailed code.")
         emsg = str(exception)
     else:
