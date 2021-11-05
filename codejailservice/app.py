@@ -68,13 +68,13 @@ configure_codejail(app)
 
 @app.route("/")
 def index():
-    """A welcome message to give an idea of what this service entails."""
+    """Make a welcome message to give an idea of what this service entails."""
     return Response("Edx Codejail Service", status=200)
 
 
 @app.route("/health")
 def health():
-    """Health route logic."""
+    """Health route response ."""
     return Response("OK", status=200)
 
 

@@ -124,5 +124,3 @@ known-third-party=codejail
 
 [EXCEPTIONS]
 overgeneral-exceptions = Exception
-
-# 1a67033d4799199101eddf63b8ed0bef3e61bda7
