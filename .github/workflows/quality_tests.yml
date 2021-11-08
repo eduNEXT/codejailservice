@@ -1,4 +1,4 @@
-name: QA
+name: QA and unit tests.
 
 on:
   push:
@@ -23,3 +23,12 @@ jobs:
     - name: Run the QA suite
       run: |
         make quality
+
+    - name: Run our service.
+      run: |
+        make run &
+    - name: Unit tests for the service.
+      run: |
+        make test
+
+

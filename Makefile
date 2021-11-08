@@ -34,12 +34,20 @@ upgrade: ## update the requirements/*.txt files with the latest packages satisfy
 	$(PIP_COMPILE) -o requirements/base.txt requirements/base.in
 	$(PIP_COMPILE) -o requirements/dev.txt requirements/dev.in
 
+run:
+	flask run --host 0.0.0.0 --port 8550
+
 quality: ## check coding style with pycodestyle and pylint
 	pylint codejailservice *.py
 	pycodestyle codejailservice *.py
 	pydocstyle codejailservice *.py
 	isort --check-only --diff --recursive codejailservice *.py
 	make selfcheck
+
+test: ## run unitary tests and meassure coverage
+	coverage run -m pytest
+	coverage report -m --fail-under=62
+	@echo "Testing module. "
 
 requirements: ## install development environment requirements
 	pip install -r requirements/pip.txt
