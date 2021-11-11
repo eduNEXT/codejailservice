@@ -1,5 +1,5 @@
-.PHONY: quality  help requirements\
-	piptools selfcheck  upgrade test clean
+.PHONY: piptools  help clean upgrade \
+	quality requirements selfcheck
 
 .DEFAULT_GOAL := help
 

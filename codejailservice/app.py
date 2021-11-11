@@ -55,7 +55,7 @@ def configure_codejail(application):
             )
 
 
-# -----------------app configuration-------------------------
+# ####################### APP CONFIGURATION #####################
 
 app = Flask(__name__)
 LOG = logging.create_logger(app)
@@ -72,7 +72,7 @@ codejail_not_safe_exec = code_jail_safe_exec.not_safe_exec
 codejail_safe_exec = code_jail_safe_exec.safe_exec
 
 
-# -----------------app routes--------------------------------
+# ######################## APP ROUTES #################################
 
 @app.route("/")
 def index():
