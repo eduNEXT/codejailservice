@@ -1,15 +1,13 @@
 """Manage the app and config the codejail functionality."""
 
-import importlib
-import json
 import os
 import sys
-import timeit
-from copy import deepcopy
 from logging.config import dictConfig
 
 from codejail import jail_code
-from flask import Flask, Response, jsonify, logging, request
+from flask import Flask, logging
+
+from .routes import routes
 
 dictConfig(
     {
@@ -58,79 +56,12 @@ def configure_codejail(application):
 # ####################### APP CONFIGURATION #####################
 
 app = Flask(__name__)
-LOG = logging.create_logger(app)
+
 env_config = os.getenv("FLASK_APP_SETTINGS",
                        "codejailservice.config.ProductionConfig")
 app.config.from_object(env_config)
 
 configure_codejail(app)
 
-# Lazy imports of codejail functions according(after) the configuration  app.
-code_jail_safe_exec = importlib.import_module('codejail.safe_exec')
-SafeExecException = code_jail_safe_exec.SafeExecException
-codejail_not_safe_exec = code_jail_safe_exec.not_safe_exec
-codejail_safe_exec = code_jail_safe_exec.safe_exec
-
-
-# ######################## APP ROUTES #################################
-
-@app.route("/")
-def index():
-    """Make a welcome message to give an idea of what this service entails."""
-    return Response("Edx Codejail Service", status=200)
-
-
-@app.route("/health")
-def health():
-    """Answer health route with response."""
-    return Response("OK", status=200)
-
-
-@app.post("/api/v0/code-exec")
-def code_exec():
-    """Code-exec route logic for post."""
-    payload = json.loads(request.form["payload"])
-    globals_dict = deepcopy(payload["globals_dict"])
-
-    unsafely = payload["unsafely"]
-    if unsafely:
-        exec_fn = codejail_not_safe_exec
-    else:
-        exec_fn = codejail_safe_exec
-
-    try:
-        python_path = payload["python_path"]
-        if python_path:
-            extra_files = [(python_path[0], request.files[python_path[0]].read())]
-        else:
-            extra_files = []
-        course_id = payload["limit_overrides_context"]
-        problem_id = payload["slug"]
-        LOG.info(
-            "Running problem_id:%s jailed code for course_id:%s ...",
-            problem_id,
-            course_id,
-        )
-        start = timeit.default_timer()
-        exec_fn(
-            payload["code"],
-            globals_dict,
-            python_path=python_path,
-            extra_files=extra_files,
-            limit_overrides_context=course_id,
-            slug=problem_id,
-        )
-        end = timeit.default_timer()
-
-    except SafeExecException as exception:
-        # Saving SafeExecException  in exception to be used later.
-        LOG.error("Error found while executing jailed code.")
-        emsg = str(exception)
-    else:
-        LOG.info("Jailed code was executed in %s seconds.", str(end - start))
-        exception = None
-        emsg = None
-
-    response = {"globals_dict": globals_dict, "emsg": emsg}
-
-    return jsonify(response)
+LOG = logging.create_logger(app)
+app.register_blueprint(routes)
