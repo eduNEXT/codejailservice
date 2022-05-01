@@ -7,7 +7,7 @@ from copy import deepcopy
 
 from flask import current_app, jsonify, request
 
-from .routes_config import routes
+from .config import routes
 
 
 def import_code_jail_safe_exec():

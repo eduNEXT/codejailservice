@@ -45,7 +45,7 @@ quality: ## check coding style with pycodestyle and pylint
 	make selfcheck
 
 test: ## run unitary tests and meassure coverage
-	coverage run -m pytest
+	coverage run -m pytest codejailservice
 	coverage report -m --fail-under=62
 	@echo "Testing module."
 
