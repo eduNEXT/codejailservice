@@ -2,7 +2,7 @@
 
 from flask import Response
 
-from .routes_config import routes
+from .config import routes
 
 
 @routes.route("/health")

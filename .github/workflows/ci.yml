@@ -24,6 +24,9 @@ jobs:
     - name: Install dependencies
       run: |
         make requirements
-    - name: Run the QA suite
+    - name: Run quality suite
       run: |
         make quality
+    - name: Run unittest suite
+      run: |
+        make test
