@@ -12,9 +12,13 @@ Change Log
 Unreleased
 ~~~~~~~~~~
 
+[13.0.0] - 2022-05-02
+~~~~~~~~~~~~~~~~~~~~~
+
 Added
 _____
 
+* Maple release
 * Add repo documentation.
 * Add quality tests to maintain the repo.
 * Add requirements files.
