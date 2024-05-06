@@ -150,8 +150,8 @@ class CodeExecServiceTest(BaseTestCase):
             data={"payload": json.dumps(payload)},
         )
         self.assertEqual(200, response.status_code)
-        self.assertIn(expected_result.pop("emsg"), response.json["emsg"])
-        self.assertDictContainsSubset(expected_result, response.json)
+        self.assertEqual(expected_result['emsg'], response.json["emsg"])
+        self.assertEqual(expected_result['globals_dict'], response.json["globals_dict"])
 
     @mock.patch("codejailservice.routes.code_exec_service.import_code_jail_safe_exec")
     def test_safe_code_exec_failure(self, import_code_jail_safe_exec):
@@ -190,5 +190,5 @@ class CodeExecServiceTest(BaseTestCase):
             data={"payload": json.dumps(payload)},
         )
         self.assertEqual(200, response.status_code)
-        self.assertIn(expected_result.pop("emsg"), response.json["emsg"])
-        self.assertDictContainsSubset(expected_result, response.json)
+        self.assertEqual(expected_result['emsg'], response.json["emsg"])
+        self.assertEqual(expected_result['globals_dict'], response.json["globals_dict"])
