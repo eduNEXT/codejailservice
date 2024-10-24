@@ -1,5 +1,5 @@
 Codejail service
-===============
+================
 
 |ci-badge| |license-badge|
 
@@ -52,16 +52,6 @@ Run service
 
 Enjoy the service!
 
-Compatibility
--------------
-
-+-------------------+----------------+
-| Open edX Release  |  Tutor Version |
-+===================+================+
-|       Lilac       |    >= 12.x     |
-+-------------------+----------------+
-|       Maple       |    >= 13.x     |
-+-------------------+----------------+
 
 How to Contribute
 -----------------
