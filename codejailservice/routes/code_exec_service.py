@@ -28,7 +28,7 @@ def code_exec():
     # Lazy imports of codejail functions according(after) the configuration  app.
     (
         safe_exec_exception,
-        codejail_not_safe_exec,
+        _,
         codejail_safe_exec,
     ) = import_code_jail_safe_exec()
 
@@ -37,9 +37,7 @@ def code_exec():
 
     unsafely = payload["unsafely"]
     if unsafely:
-        exec_fn = codejail_not_safe_exec
-    else:
-        exec_fn = codejail_safe_exec
+        log.warning("Ignoring execution with unsafely=true")
 
     try:
         python_path = payload["python_path"]
@@ -55,7 +53,7 @@ def code_exec():
             course_id,
         )
         start = timeit.default_timer()
-        exec_fn(
+        codejail_safe_exec(
             payload["code"],
             globals_dict,
             python_path=python_path,

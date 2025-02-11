@@ -103,7 +103,7 @@ class CodeExecServiceTest(BaseTestCase):
 
         self.assertEqual(200, response.status_code)
         self.assertDictEqual(expected_result, response.json)
-        unsafe_exec.assert_called_once_with(
+        safe_exec.assert_called_once_with(
             payload["code"],
             payload["globals_dict"],
             python_path=payload["python_path"],
@@ -111,7 +111,7 @@ class CodeExecServiceTest(BaseTestCase):
             limit_overrides_context=payload["limit_overrides_context"],
             slug=payload["slug"],
         )
-        safe_exec.assert_not_called()
+        unsafe_exec.assert_not_called()
 
     @mock.patch("codejailservice.routes.code_exec_service.import_code_jail_safe_exec")
     def test_unsafe_code_exec_failure(self, import_code_jail_safe_exec):
@@ -128,7 +128,7 @@ class CodeExecServiceTest(BaseTestCase):
             unsafe_exec,
             safe_exec,
         )
-        unsafe_exec.side_effect = Exception("SyntaxError: invalid syntax ' with status code: 1")
+        safe_exec.side_effect = Exception("SyntaxError: invalid syntax ' with status code: 1")
         payload = {
             "code": "Syntax error",
             "globals_dict": {"seed": 1, "anonymous_student_id": "student"},
@@ -152,6 +152,7 @@ class CodeExecServiceTest(BaseTestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(expected_result['emsg'], response.json["emsg"])
         self.assertEqual(expected_result['globals_dict'], response.json["globals_dict"])
+        unsafe_exec.assert_not_called()
 
     @mock.patch("codejailservice.routes.code_exec_service.import_code_jail_safe_exec")
     def test_safe_code_exec_failure(self, import_code_jail_safe_exec):
@@ -192,3 +193,4 @@ class CodeExecServiceTest(BaseTestCase):
         self.assertEqual(200, response.status_code)
         self.assertEqual(expected_result['emsg'], response.json["emsg"])
         self.assertEqual(expected_result['globals_dict'], response.json["globals_dict"])
+        unsafe_exec.assert_not_called()
