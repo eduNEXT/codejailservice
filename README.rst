@@ -1,6 +1,17 @@
 Codejail service
 ================
 
+   ⚠️ **NOTE:**
+   This implementation has been deprecated in favor of
+   https://github.com/openedx/codejail-service. The last supported release is
+   Ulmo.
+
+   The main deployment mechanism for both this implementation and
+   openedx/codejail-service is via the Tutor plugin
+   https://github.com/eduNEXT/tutor-contrib-codejail/. The plugin highlights
+   the main differences to be wary when moving between implementations:
+   https://github.com/eduNEXT/tutor-contrib-codejail/#new-codejail-service-implementation
+
 |ci-badge| |license-badge|
 
 The repository codejailservice manages execution of untrusted code in secure sandboxes. It is designed primarily for Python execution, but
